@@ -26,10 +26,12 @@ function AddToDataStore()
     local Equipped = Background:WaitForChild("Equipped")
     local l__Body__44 = Background:WaitForChild("Body")
     local l__Inv__45 = Background:WaitForChild("Inv")
+    local l__Materials__46 = Background:WaitForChild("Materials")
     u3 = {
         Equipped = {},
         Inventory = {},
         Body = {}
+	Materials = {}
     }
     local v46 = Equipped:GetChildren()
     for v47 = 1, #v46 do
