@@ -86,177 +86,110 @@ function AddToDataStore()
         u3.Inventory[v53] = v54
     end
     local v58 = l__Body__44:GetChildren()
-    for v59 = 1
-            if v129:IsA("Frame") and v129.LayoutOrder == 0 then
-                v129.Visible = false
-            elseif v129:IsA("ImageButton") and v129:FindFirstChild("Slot") then
-                if v129.Slot.Value == p18.Slot.Value then
-                    v129.Visible = false
-                end
+    for v59 = 1, #v58 do
+        local v60 = {
+            Name = "",
+            Stack = 0
+        }
+        local v61 = v58[v59]:GetChildren()
+        local v62 = nil
+        for v63 = 1, #v61 do
+            if v61[v63]:isA("Tool") then
+                v62 = v61[v63]
             end
         end
-        v126.Parent = Inv
-        v127.Parent = v126
-        v126.Interact:Destroy()
-        v126.Mass:Destroy()
-        v126.PrimaryPart = v126.Handle
-        v126.Handle.Massless = true
-        v126.Handle.Mass.Value = 0
-        v126.Handle.Size = Vector3.new(0.2, 0.2, 0.2)
-        v126.Handle.Transparency = 1
-        v126.Handle.CanCollide = false
-        v126.Handle.Locked = true
-        v126.Handle.BrickColor = BrickColor.new("Bright blue")
-        v126.Handle.Anchored = true
-        v126.Handle.Parent = v126
-        v126.Parent = l__LocalPlayer__1.Backpack
-        wait(1)
-        AddToDataStore()
-        _G.databusy = false
+        if v62 ~= nil then
+            if v62.Configuration:FindFirstChild("Stack") then
+                v60.Name = v62.Name
+                v60.Stack = v62.Configuration.Stack.Value
+            else
+                v60.Name = v62.Name
+                v60.Stack = 0
+            end
+        else
+            v60.Name = nil
+            v60.Stack = nil
+        end
+        u3.Body[v58[v59].LayoutOrder] = v60
     end
+
+    findRemote('RemoteFunction'):InvokeServer("updateStats", u3)
+    Background.Saving.Visible = false
 end
 
-MainFunction.RemoveFromInv = function(p19)
+AddModifier = function(p1, p2)
+    local v1 = p1:Clone()
+    v1.Parent = p1.Parent
+    v1.Name = p2
+end
+
+RemoveModifier = function(p3, p4)
+	local v2 = p3.Parent:FindFirstChild(p3.Name);
+	if not v2 then
+		return;
+	end;
+	local v3 = v2:FindFirstChild(p4);
+	if v3 then
+		v3:Remove();
+		return;
+	end;
+end
+
+local MainFunction = {}
+
+function MainFunction.AddToInvLOL(p18)
     local Background = FindBackground()
     local Inv = Background:WaitForChild("Inv")
-    local v130 = false
+    local v125 = false
     if not _G.databusy and true then
         Background.Saving.Visible = true
         _G.databusy = true
-        local v131 = l__LocalPlayer__1.Backpack:FindFirstChild(p19.Name)
-        if v131 then
-            v131.Parent = nil
-        end
-        for v132 = 1, 21 do
+        local v126 = p18:Clone()
+        v126:WaitForChild("Configuration"):WaitForChild("ReplicatedStorageObject").Value = p18
+        local v127 = v126.Interact:Clone()
+        for v128 = 1, 21 do
             pcall(function()
-                local v133 = Inv[v132]
-                if v133:IsA("ImageButton") and v133:FindFirstChild("Slot") and v133.Slot.Value == p19.Slot.Value then
-                    v133.Visible = true
+                local v129 = Inv[v128]
+                if not v129:FindFirstChild("Interact") and not v125 then
+                    v125 = true
+                    AddModifier(v126.Configuration.Weight, v126.Name)
+                    v126.Parent = v129
+                    v127.Parent = v129
+                    v127.Position = v127.Position - UDim2.new(0, 0, 0.1, 0)
+                    pcall(function()
+                        v129:FindFirstChild("Image").Image = v126.Decal.Image
+                        local Weight = Instance.new('NumberValue', l__LocalPlayer__1.Character.Modifiers.Weight)
+                        Weight.Name = p18.Name
+                    end)
+                    v129.Stack.Visible = false
+                    if v126.Configuration:FindFirstChild("Stack") then
+                        v129.Stack.Text = v126.Configuration.Stack.Value
+                        v129.Stack.Visible = true
+                    end
                 end
             end)
         end
-        wait(1)
-        AddToDataStore()
-        _G.databusy = false
     end
-end
-
-MainFunction.RemoveEquipped = function(p20)
-    local Background = FindBackground()
-    local Equipped = Background:WaitForChild("Equipped")
-    local v134 = false
-    if not _G.databusy and true then
-        Background.Saving.Visible = true
-        _G.databusy = true
-        local v135 = l__LocalPlayer__1.Character:FindFirstChild(p20.Name)
-        if v135 then
-            v135.Parent = nil
-        end
-        for v136 = 1, 21 do
-            pcall(function()
-                local v137 = Equipped[v136]
-                if v137:IsA("ImageButton") and v137:FindFirstChild("Slot") and v137.Slot.Value == p20.Slot.Value then
-                    v137.Visible = true
+    spawn(
+        function()
+            for v130 = 0, 5 do
+                wait(1)
+                if _G.databusy == false then
+                    break
                 end
-            end)
+            end
+            _G.databusy = false
+            Background.Saving.Visible = false
         end
-        wait(1)
+    )
+    if v125 ~= false then
         AddToDataStore()
         _G.databusy = false
+        return true
     end
-end
-
-MainFunction.ClearEquipped = function()
-    local Background = FindBackground()
-    local Equipped = Background:WaitForChild("Equipped")
-    local v138 = false
-    if not _G.databusy and true then
-        Background.Saving.Visible = true
-        _G.databusy = true
-        for v139 = 1, 21 do
-            pcall(function()
-                local v140 =
-                Equipped[v139].Visible = true
-            end)
-        end
-        wait(1)
-        AddToDataStore()
-        _G.databusy = false
-    end
-end
-
-MainFunction.ClearInventory = function()
-    local Background = FindBackground()
-    local Inv = Background:WaitForChild("Inv")
-    local v141 = false
-    if not _G.databusy and true then
-        Background.Saving.Visible = true
-        _G.databusy = true
-        for v142 = 1, 21 do
-            pcall(function()
-                local v143 = Inv[v142]
-                v143.Visible = true
-            end)
-        end
-        wait(1)
-        AddToDataStore()
-        _G.databusy = false
-    end
-end
-
-MainFunction.EquipItem = function(p21)
-    local Background = FindBackground()
-    local Inv = Background:WaitForChild("Inv")
-    local Equipped = Background:WaitForChild("Equipped")
-    local v144 = false
-    if not _G.databusy and true then
-        Background.Saving.Visible = true
-        _G.databusy = true
-        local v145 = Inv:FindFirstChild(p21.Name)
-        if v145 then
-            v145.Parent = nil
-        end
-        for v146 = 1, 21 do
-            pcall(function()
-                local v147 = Equipped[v146]
-                if v147:IsA("ImageButton") and v147:FindFirstChild("Slot") and v147.Visible == false then
-                    v147.Visible = true
-                    v147.Slot.Value = p21.Slot.Value
-                    v147.Image = p21.Image
-                    v147.Parent = Equipped
-                end
-            end)
-        end
-        wait(1)
-        AddToDataStore()
-        _G.databusy = false
-    end
-end
-
-MainFunction.UnequipItem = function(p22)
-    local Background = FindBackground()
-    local Inv = Background:WaitForChild("Inv")
-    local Equipped = Background:WaitForChild("Equipped")
-    local v148 = false
-    if not _G.databusy and true then
-        Background.Saving.Visible = true
-        _G.databusy = true
-        local v149 = Equipped:FindFirstChild(p22.Name)
-        if v149 then
-            v149.Parent = nil
-        end
-        for v150 = 1, 21 do
-            pcall(function()
-                local v151 = Inv[v150]
-                if v151:IsA("ImageButton") and v151:FindFirstChild("Slot") and v151.Slot.Value == p22.Slot.Value then
-                    v151.Visible = true
-                end
-            end)
-        end
-        wait(1)
-        AddToDataStore()
-        _G.databusy = false
-    end
+    AddToDataStore()
+    _G.databusy = false
+    return false
 end
 
 return MainFunction
